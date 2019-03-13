@@ -74,15 +74,23 @@ const path = require('path')
             `${buffer.message}`
           )
           const text = buffer.toString('utf-8')
-          const parsedText = text.split(/\r?\n/g)
-          const result = parsedText.map((item, index) => {
-            if ((index + 1) % 4 === 3) {
-              return item
-            }
-            return null
-          }).filter(item => !!item).join('\n')
+          const [first, second, ...other] = text.split(/\r?\n/g)
+          const isVtt = first.trim() === 'WEBVTT'
+          let parsedText = [first, second, ...other]
+          if (isVtt) {
+            parsedText = [second, ...other]
+          }
+          const result = parsedText.filter(
+            item => item !== null && item !== undefined
+          )
+            .map((item, index) => {
+              if ((index + 1) % (isVtt ? 3 : 4) === (isVtt ? 0 : 3)) {
+                return item
+              }
+              return null
+            }).filter(item => !!item).join('\n')
           return writer(result)(filename)((err) => {
-            if (err) console.error(err.message)
+            if (err) console.info(err === true ? 'finished' : 'break down')
           });
         }
       }
