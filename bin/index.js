@@ -80,15 +80,12 @@ const path = require('path')
           if (isVtt) {
             parsedText = [second, ...other]
           }
-          const result = parsedText.filter(
-            item => item !== null && item !== undefined
-          )
-            .map((item, index) => {
-              if ((index + 1) % (isVtt ? 3 : 4) === (isVtt ? 0 : 3)) {
-                return item
-              }
-              return null
-            }).filter(item => !!item).join('\n')
+          const result = parsedText
+            .filter(item => !!item)
+            .map(item => item.trim())
+            .filter(
+              text => !/^\d+$/.test(text) && !/^\d+\S+\s+-->\s+\S+\d+$/.test(text)
+            ).join('\n')
           return writer(result)(filename)((err) => {
             if (err) console.info(err === true ? 'finished' : 'break down')
           });
