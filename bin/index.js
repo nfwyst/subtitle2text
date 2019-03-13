@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs')
 const path = require('path')
 
@@ -7,12 +9,16 @@ const path = require('path')
     }
 
     const getFilename = ([filename]) => {
+      if (!filename) return new Error('please provide a file to extract...');
       return filename
     }
 
     const buildPath = (process) => {
       return (pathlib) => {
         return (filename) => {
+          if (filename instanceof Error) {
+            return filename
+          }
           return pathlib.join(process.cwd(), filename);
         }
       }
@@ -22,6 +28,7 @@ const path = require('path')
       return (filename) => {
         return (write) => {
           return (cb) => {
+            if (filename instanceof Error) return console.error(filename.message)
             try {
               return fs.readFile(filename, (err, data) => {
                 if (!err) {
